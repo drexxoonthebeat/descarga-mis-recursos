@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desbloquea el material — Cadena de señal</title>
+<meta name="description" content="Suscríbete, sigue y deja tu correo para desbloquear el material de descarga.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15171a;
+    --panel:#1c1f23;
+    --panel-raised:#22262b;
+    --line:#33383f;
+    --line-soft:#2a2e34;
+    --text:#ece9e2;
+    --text-muted:#8a8f98;
+    --amber:#e8a33d;
+    --amber-dim:#5c4a2a;
+    --green:#6fcf97;
+    --green-dim:#2c4536;
+    --red:#e2685c;
+    --radius:10px;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 50% -10%, #1e2226 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:var(--font-body);
+    min-height:100vh;
+    padding:48px 20px 80px;
+    display:flex;
+    justify-content:center;
+  }
+
+  .rack{
+    width:100%;
+    max-width:480px;
+  }
+
+  /* ---- header ---- */
+  .brand{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    margin-bottom:22px;
+  }
+  .brand .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 6px var(--green);
+  }
+
+  header.intro{
+    text-align:center;
+    margin-bottom:36px;
+  }
+  header.intro h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(26px, 6vw, 34px);
+    line-height:1.15;
+    margin:0 0 12px;
+    letter-spacing:-.01em;
+  }
+  header.intro p{
+    color:var(--text-muted);
+    font-size:15px;
+    line-height:1.55;
+    margin:0 auto;
+    max-width:36ch;
+  }
+
+  /* ---- signal chain progress ---- */
+  .chain{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 6px;
+    margin-bottom:8px;
+  }
+  .jack{
+    width:34px;height:34px;
+    border-radius:50%;
+    background:var(--panel-raised);
+    border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-muted);
+    flex-shrink:0;
+    transition:border-color .3s ease, background .3s ease, box-shadow .3s ease, color .3s ease;
+  }
+  .jack.done{
+    border-color:var(--green);
+    background:var(--green-dim);
+    color:var(--green);
+    box-shadow:0 0 10px rgba(111,207,151,.35);
+  }
+  .cable{
+    flex:1;
+    height:2px;
+    background:var(--line);
+    margin:0 4px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cable::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:var(--green);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .5s ease;
+  }
+  .cable.filled::after{transform:scaleX(1);}
+
+  .chain-labels{
+    display:flex;
+    justify-content:space-between;
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:.06em;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    margin-bottom:32px;
+    padding:0 2px;
+  }
+  .chain-labels span{width:70px; text-align:center;}
+  .chain-labels span:first-child{text-align:left; margin-left:-16px;}
+  .chain-labels span:last-child{text-align:right; margin-right:-16px;}
+
+  /* ---- module cards ---- */
+  .module{
+    background:var(--panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius);
+    padding:20px 20px 18px;
+    margin-bottom:14px;
+    position:relative;
+    transition:border-color .3s ease, opacity .3s ease;
+  }
+  .module.complete{
+    border-color:rgba(111,207,151,.4);
+  }
+  .module.locked{
+    opacity:.45;
+    pointer-events:none;
+  }
+
+  .module-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .step-num{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-muted);
+    border:1px solid var(--line);
+    border-radius:4px;
+    width:24px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .module.complete .step-num{
+    color:var(--green);
+    border-color:var(--green);
+  }
+  .module-title{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:15.5px;
+  }
+  .module-sub{
+    font-size:13px;
+    color:var(--text-muted);
+    margin:2px 0 0;
+  }
+  .status-led{
+    margin-left:auto;
+    font-family:var(--font-mono);
+    font-size:10px;
+    letter-spacing:.08em;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .status-led::before{
+    content:'';
+    width:7px;height:7px;border-radius:50%;
+    background:var(--line);
+    transition:background .3s ease, box-shadow .3s ease;
+  }
+  .module.complete .status-led::before{
+    background:var(--green);
+    box-shadow:0 0 6px rgba(111,207,151,.6);
+  }
+  .module.complete .status-led{color:var(--green);}
+
+  .btn{
+    width:100%;
+    border:none;
+    border-radius:8px;
+    padding:12px 16px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14.5px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    transition:transform .15s ease, filter .15s ease;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn:focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+
+  .btn-yt{background:#e2685c; color:#1a1010;}
+  .btn-ig{background:linear-gradient(135deg,#e8a33d,#e2685c 60%,#c2559c); color:#1a1010;}
+  .btn-done{
+    background:var(--green-dim);
+    color:var(--green);
+    cursor:default;
+  }
+  .btn:not(.btn-done):hover{filter:brightness(1.08);}
+
+  .email-row{
+    display:flex;
+    gap:8px;
+  }
+  .email-row input{
+    flex:1;
+    min-width:0;
+    background:var(--panel-raised);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:14.5px;
+  }
+  .email-row input:focus-visible{outline:2px solid var(--amber); outline-offset:1px;}
+  .email-row input::placeholder{color:var(--text-muted);}
+  .email-row .btn{width:auto; padding:12px 18px; flex-shrink:0;}
+  .field-msg{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--red);
+    margin:8px 0 0;
+    min-height:14px;
+  }
+
+  /* ---- output / unlock ---- */
+  .output{
+    margin-top:24px;
+    background:var(--panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius);
+    padding:22px 20px;
+    text-align:center;
+  }
+  .output .step-num{margin:0 auto 12px; width:28px; height:28px;}
+  .output h2{
+    font-family:var(--font-display);
+    font-size:18px;
+    margin:0 0 6px;
+  }
+  .output p{
+    color:var(--text-muted);
+    font-size:13.5px;
+    margin:0 0 18px;
+  }
+  .downloads{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .downloads a{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--panel-raised);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:13px 16px;
+    color:var(--text);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:500;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .downloads a:hover{border-color:var(--green); background:#1f2924;}
+  .downloads a .arrow{
+    font-family:var(--font-mono);
+    color:var(--green);
+  }
+
+  .locked-output{
+    margin-top:24px;
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    letter-spacing:.06em;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    padding:18px;
+    border:1px dashed var(--line);
+    border-radius:var(--radius);
+  }
+
+  footer{
+    text-align:center;
+    margin-top:40px;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--text-muted);
+    letter-spacing:.04em;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="rack">
+
+  <div class="brand"><span class="dot"></span> SEÑAL EN VIVO</div>
+
+  <header class="intro">
+    <h1>Desbloquea el material de descarga</h1>
+    <p>Completa la cadena de señal: 3 pasos y el archivo queda disponible.</p>
+  </header>
+
+  <div class="chain" id="chain">
+    <div class="jack" id="jack-0">1</div>
+    <div class="cable" id="cable-0"></div>
+    <div class="jack" id="jack-1">2</div>
+    <div class="cable" id="cable-1"></div>
+    <div class="jack" id="jack-2">3</div>
+  </div>
+  <div class="chain-labels">
+    <span>YouTube</span>
+    <span>Instagram</span>
+    <span>Correo</span>
+  </div>
+
+  <!-- Paso 1: YouTube -->
+  <section class="module" id="module-0">
+    <div class="module-head">
+      <div class="step-num">1</div>
+      <div>
+        <div class="module-title">Suscríbete al canal</div>
+        <p class="module-sub">Un clic y quedas dentro.</p>
+      </div>
+      <div class="status-led" id="led-0">Pendiente</div>
+    </div>
+    <button class="btn btn-yt" id="btn-0" type="button">Suscribirme en YouTube ↗</button>
+  </section>
+
+  <!-- Paso 2: Instagram -->
+  <section class="module locked" id="module-1">
+    <div class="module-head">
+      <div class="step-num">2</div>
+      <div>
+        <div class="module-title">Síguenos en Instagram</div>
+        <p class="module-sub">Contenido extra que no va al canal.</p>
+      </div>
+      <div class="status-led" id="led-1">Pendiente</div>
+    </div>
+    <button class="btn btn-ig" id="btn-1" type="button">Seguir en Instagram ↗</button>
+  </section>
+
+  <!-- Paso 3: Correo -->
+  <section class="module locked" id="module-2">
+    <div class="module-head">
+      <div class="step-num">3</div>
+      <div>
+        <div class="module-title">Deja tu correo</div>
+        <p class="module-sub">Para avisarte de material nuevo.</p>
+      </div>
+      <div class="status-led" id="led-2">Pendiente</div>
+    </div>
+    <div class="email-row">
+      <input type="email" id="email-input" placeholder="tu@correo.com" autocomplete="email">
+      <button class="btn btn-ig" id="btn-2" type="button">Enviar</button>
+    </div>
+    <p class="field-msg" id="email-msg"></p>
+  </section>
+
+  <!-- Salida: descargas -->
+  <div id="output-locked" class="locked-output">Salida bloqueada — completa los 3 pasos</div>
+
+  <section class="output" id="output-unlocked" style="display:none;">
+    <div class="step-num" style="border-color:var(--green); color:var(--green);">✓</div>
+    <h2>Señal completa</h2>
+    <p>Tus archivos están listos para descargar.</p>
+    <div class="downloads" id="downloads-list"></div>
+  </section>
+
+  <footer>Cadena de señal · 3/3 pasos requeridos</footer>
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — edita solo esta sección
+   ============================================================ */
+
+// Enlace de suscripción a tu canal de YouTube
+const YOUTUBE_URL = "https://www.youtube.com/@tu-canal?sub_confirmation=1";
+
+// Enlace a tu perfil de Instagram
+const INSTAGRAM_URL = "https://www.instagram.com/tu-usuario";
+
+// Endpoint para recibir el correo. Crea uno gratis en https://formspree.io
+// (te da una URL tipo https://formspree.io/f/xxxxxxx) y pégala aquí.
+// Si lo dejas vacío, el correo no se envía a ningún lado, solo se valida
+// el formato y se desbloquea el contenido.
+const EMAIL_FORM_ENDPOINT = ""; // ej: "https://formspree.io/f/abcdwxyz"
+
+// Archivos a desbloquear — pon aquí tus enlaces de Google Drive
+// (asegúrate de que el enlace de Drive esté en "Cualquier persona con el enlace")
+const DOWNLOAD_LINKS = [
+  { label: "WAV 32 bits — referencia", url: "https://drive.google.com/uc?export=download&id=TU_ID_1" },
+  { label: "WAV 16 bits sin dithering", url: "https://drive.google.com/uc?export=download&id=TU_ID_2" },
+  { label: "WAV 16 bits con dithering", url: "https://drive.google.com/uc?export=download&id=TU_ID_3" },
+  { label: "MP3 320kbps con dithering", url: "https://drive.google.com/uc?export=download&id=TU_ID_4" },
+];
+
+const STORAGE_KEY = "unlock_progress_v1";
+
+/* ============================================================
+   LÓGICA — no necesitas tocar esto
+   ============================================================ */
+
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"0":false,"1":false,"2":false}');
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+function render(){
+  for (let i = 0; i < 3; i++){
+    const mod = document.getElementById(`module-${i}`);
+    const jack = document.getElementById(`jack-${i}`);
+    const led = document.getElementById(`led-${i}`);
+    const btn = document.getElementById(`btn-${i}`);
+
+    if (state[i]){
+      mod.classList.add("complete");
+      jack.classList.add("done");
+      led.textContent = "Listo";
+      if (btn) { btn.classList.add("btn-done"); btn.textContent = i === 2 ? "Correo recibido ✓" : (btn.dataset.doneLabel || "Completado ✓"); btn.disabled = true; }
+    }
+
+    // desbloquear siguiente módulo
+    if (i > 0){
+      const prevDone = state[i-1];
+      mod.classList.toggle("locked", !prevDone && !state[i]);
+    }
+  }
+
+  document.getElementById("cable-0").classList.toggle("filled", state[0]);
+  document.getElementById("cable-1").classList.toggle("filled", state[1]);
+
+  const allDone = state[0] && state[1] && state[2];
+  document.getElementById("output-locked").style.display = allDone ? "none" : "block";
+  document.getElementById("output-unlocked").style.display = allDone ? "block" : "none";
+
+  if (allDone){
+    const list = document.getElementById("downloads-list");
+    list.innerHTML = "";
+    DOWNLOAD_LINKS.forEach(item => {
+      const a = document.createElement("a");
+      a.href = item.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.innerHTML = `<span>${item.label}</span><span class="arrow">↓</span>`;
+      list.appendChild(a);
+    });
+  }
+}
+
+document.getElementById("btn-0").addEventListener("click", () => {
+  window.open(YOUTUBE_URL, "_blank", "noopener");
+  state[0] = true; save(); render();
+});
+
+document.getElementById("btn-1").addEventListener("click", () => {
+  window.open(INSTAGRAM_URL, "_blank", "noopener");
+  state[1] = true; save(); render();
+});
+
+document.getElementById("btn-2").addEventListener("click", async () => {
+  const input = document.getElementById("email-input");
+  const msg = document.getElementById("email-msg");
+  const email = input.value.trim();
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if (!valid){
+    msg.textContent = "Ingresa un correo válido.";
+    return;
+  }
+  msg.textContent = "";
+
+  if (EMAIL_FORM_ENDPOINT){
+    try{
+      await fetch(EMAIL_FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+    }catch(e){
+      // si falla el envío, igual desbloqueamos: no queremos bloquear
+      // al usuario por un problema de red ajeno a él
+    }
+  }
+
+  state[2] = true; save(); render();
+});
+
+render();
+</script>
+
+</body>
+</html>
