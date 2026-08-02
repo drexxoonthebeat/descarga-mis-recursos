@@ -337,6 +337,24 @@
     letter-spacing:.04em;
   }
 
+   .reset-link{
+    background:none;
+    border:none;
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--text-muted);
+    letter-spacing:.04em;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    cursor:pointer;
+    padding:4px;
+    margin-top:10px;
+    display:inline-block;
+    transition:color .2s ease;
+  }
+  .reset-link:hover{color:var(--red);}
+  .reset-link:focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+  
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;}
   }
@@ -419,7 +437,10 @@
     <div class="downloads" id="downloads-list"></div>
   </section>
 
-  <footer>Cadena de señal · 3/3 pasos requeridos</footer>
+  <footer>
+    Cadena de señal · 3/3 pasos requeridos<br>
+    <button class="reset-link" id="reset-btn" type="button">Reiniciar progreso</button>
+  </footer>
 </div>
 
 <script>
@@ -534,7 +555,14 @@ document.getElementById("btn-2").addEventListener("click", async () => {
 
   state[2] = true; save(); render();
 });
-
+  
+document.getElementById("reset-btn").addEventListener("click", () => {
+  if (confirm("¿Reiniciar el progreso? Vas a tener que completar los 3 pasos de nuevo.")){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+});
+  
 render();
 </script>
 
